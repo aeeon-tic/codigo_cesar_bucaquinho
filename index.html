@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Árvores do Buçaquinho — Código de César</title>
+<style>
+:root{
+  --bg:#eef2ef;
+  --card:#ffffff;
+  --panel:#f3f5f4;
+  --line:#d6ddd9;
+  --text:#24332b;
+  --muted:#6b746f;
+  --green:#3f7d4a;
+  --green2:#6ca978;
+  --green3:#2f6039;
+  --green4:#527a56;
+  --gray:#7d8681;
+  --gray2:#aab2ad;
+  --brown:#8b5a34;
+  --brown2:#6d4428;
+  --bark:#b97a46;
+  --red:#e75645;
+  --orange:#eea04a;
+  --yellow:#f3cb56;
+  --shadow:0 5px 16px rgba(36,51,43,.07);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
+  background:linear-gradient(180deg,#e9eeeb 0%,#f7f8f7 100%);
+}
+button,input{font:inherit}
+main{max-width:980px;margin:auto;padding:10px 14px 8px}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:13px 15px;
+  box-shadow:var(--shadow);
+}
+.hero{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  align-items:center;
+  justify-content:space-between;
+  background:linear-gradient(135deg,#3a6a42 0%,#5d8f64 62%,#8ea272 100%);
+  border-color:#496f49;
+  color:white;
+  position:relative;
+  overflow:hidden;
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.16), transparent 18%),
+    radial-gradient(circle at 86% 18%, rgba(255,255,255,.15), transparent 16%),
+    radial-gradient(circle at 72% 88%, rgba(255,255,255,.12), transparent 20%);
+  pointer-events:none;
+}
+.hero-main{position:relative;z-index:1;max-width:620px}
+.hero-kicker{
+  display:inline-block;
+  margin-bottom:6px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+.hero h1{
+  margin:0;
+  font-size:clamp(28px,4vw,42px);
+  line-height:1.03;
+  color:#ffffff;
+}
+.hero-subtitle{
+  margin:7px 0 0;
+  font-size:15px;
+  line-height:1.35;
+  color:#eef7ef;
+  font-weight:700;
+}
+.hero-icons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.hero-icon{
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:13px;
+  font-weight:800;
+}
+.stats{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.stat{
+  min-width:100px;
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.30);
+  border-radius:14px;
+  padding:8px 12px;
+  text-align:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.stat small{display:block;font-size:11px;color:#eef7ef;font-weight:900}
+.stat strong{display:block;font-size:21px;color:#fff}
+.progress{
+  width:100%;
+  height:8px;
+  background:rgba(255,255,255,.22);
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:8px;
+}
+.progress>div{
+  height:100%;
+  width:10%;
+  background:linear-gradient(90deg,#b9d8bf,#ffffff);
+  transition:width .25s ease;
+}
+.space{height:8px}
+.cipher-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cipher{
+  margin-top:7px;
+  background:var(--panel);
+  border-radius:13px;
+  padding:8px 10px;
+  overflow-x:auto;
+}
+.cipher-row{
+  min-width:700px;
+  display:grid;
+  grid-template-columns:82px 1fr;
+  gap:8px;
+  font-family:Consolas,Menlo,monospace;
+  font-weight:800;
+}
+.cipher-row span:last-child{letter-spacing:.17em}
+.cipher-row:first-child span:last-child{color:var(--green3)}
+.cipher-row:nth-child(2) span:last-child{color:var(--gray)}
+.grid{
+  display:grid;
+  grid-template-columns:1.06fr .94fr;
+  gap:13px;
+  align-items:stretch;
+}
+.visualWrap{
+  background:linear-gradient(180deg,#f7f1e6 0%,#fbfaf5 100%);
+  border:1px solid #ddd3c2;
+  border-radius:18px;
+  padding:10px;
+}
+.visualTitle{
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  margin-bottom:7px;
+}
+.triptych{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:7px;
+  align-items:stretch;
+}
+.box{
+  background:#fffdf7;
+  border:1px solid #ded6c9;
+  border-radius:16px;
+  padding:6px;
+  min-height:160px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 2px 7px rgba(91,70,42,.04);
+}
+.box.small{min-height:160px}
+.box svg{width:100%;height:100%;max-height:225px}
+.caption{
+  text-align:center;
+  font-size:11px;
+  font-weight:900;
+  color:var(--muted);
+  margin-top:4px;
+}
+.badge{
+  display:inline-flex;
+  align-self:flex-start;
+  background:#e7efe9;
+  color:#315c3b;
+  border:1px solid #c8d7cc;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:900;
+}
+.side h2{
+  margin:7px 0 4px;
+  font-size:clamp(22px,3vw,30px);
+}
+.instruction{margin:0 0 9px;color:var(--muted);font-weight:700;font-size:14px}
+.wordbox{
+  background:#f4f6f5;
+  border:2px dashed #c1cac5;
+  border-radius:13px;
+  padding:9px 12px;
+  margin-bottom:9px;
+  font-size:clamp(25px,4vw,38px);
+  font-weight:950;
+  letter-spacing:.06em;
+  word-break:break-word;
+}
+label{display:block;margin-bottom:5px;font-weight:900}
+input{
+  width:100%;
+  min-height:46px;
+  border:2px solid #d1d8d4;
+  border-radius:12px;
+  padding:0 12px;
+  font-size:19px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--text);
+}
+input:focus{
+  outline:3px solid rgba(63,125,74,.16);
+  border-color:var(--green);
+}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{
+  border:0;
+  border-radius:11px;
+  min-height:40px;
+  padding:0 14px;
+  font-weight:900;
+  cursor:pointer;
+}
+.primary{background:var(--green);color:#fff}
+.secondary{background:#e9edeb;color:var(--text)}
+.feedback{min-height:24px;margin-top:8px;font-weight:900}
+.good{color:#2f7a3b}
+.bad{color:#b74848}
+.note{font-size:12px;color:var(--muted);margin-top:4px}
+.finish{
+  display:none;
+  text-align:center;
+  padding:20px 14px;
+}
+.finish .big{font-size:54px}
+.finish h2{margin:6px 0;font-size:28px}
+.finish .stars{font-size:36px;margin:6px 0}
+.footer{
+  text-align:center;
+  margin-top:7px;
+  font-size:13px;
+  color:var(--muted);
+}
+.footer strong{color:#315c3b}
+@media (max-width:860px){
+  .hero{align-items:flex-start}
+}
+@media (max-width:560px){
+  .hero-subtitle{font-size:14px}
+  .hero-icon{font-size:12px;padding:5px 9px}
+}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+@media (max-width:560px){
+  main{padding:8px}
+  .card{padding:11px;border-radius:15px}
+  .triptych{grid-template-columns:1fr 1fr}
+  .box:first-child{grid-column:1/-1;min-height:180px}
+  .box.small{min-height:130px}
+}
+@media(max-height:800px) and (min-width:861px){
+  main{padding-top:6px}
+  .card{padding:10px 13px}
+  .space{height:6px}
+  .box,.box.small{min-height:145px}
+  .box svg{max-height:205px}
+  .wordbox{padding:7px 10px;margin-bottom:7px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+  <section class="card hero">
+    <div class="hero-main">
+            <h1>Árvores do Buçaquinho</h1>
+      <p class="hero-subtitle">Observa a árvore, a folha e o fruto. Depois descobre o nome secreto com o Código de César.</p>
+      <div class="hero-icons">
+        <span class="hero-icon">🌳 Árvores</span>
+        <span class="hero-icon">🍃 Folhas</span>
+        <span class="hero-icon">🍂 Frutos</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><small>DESAFIO</small><strong id="missionCount">1/10</strong></div>
+      <div class="stat"><small>PONTOS</small><strong id="score">0</strong></div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+  </section>
+
+  <div class="space"></div>
+
+  <section class="card">
+    <div class="cipher-head">
+      <strong>Código de César</strong>
+      <span style="font-size:13px;color:var(--muted);font-weight:900">A → N &nbsp;•&nbsp; N → A</span>
+    </div>
+    <div class="cipher">
+      <div class="cipher-row"><span>Normal</span><span>ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></div>
+      <div class="cipher-row"><span>Código</span><span>NOPQRSTUVWXYZABCDEFGHIJKLM</span></div>
+    </div>
+  </section>
+
+  <div class="space"></div>
+
+  <section class="card" id="missionCard">
+    <div class="grid">
+      <div class="visualWrap">
+        <div class="visualTitle">Observa a árvore, a folha e o fruto</div>
+        <div class="triptych">
+          <div>
+            <div class="box" id="treeBox"></div>
+            <div class="caption">Árvore</div>
+          </div>
+          <div>
+            <div class="box small" id="leafBox"></div>
+            <div class="caption">Folha</div>
+          </div>
+          <div>
+            <div class="box small" id="fruitBox"></div>
+            <div class="caption">Fruto</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <span class="badge" id="modeBadge">CODIFICAR</span>
+        <h2 id="title">Codifica o nome da árvore</h2>
+        <p class="instruction" id="instruction">Usa o código para transformar cada letra.</p>
+        <div class="wordbox" id="challenge">PINHEIRO</div>
+
+        <form id="answerForm">
+          <label for="answer">Escreve a resposta:</label>
+          <input id="answer" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Escreve aqui">
+          <div class="actions">
+            <button class="primary" type="submit">Verificar</button>
+            <button class="secondary" type="button" id="newGameBtn">Novo jogo</button>
+          </div>
+        </form>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="note">1.ª tentativa: 100 pts · 2.ª: 70 pts · 3.ª: 40 pts · seguintes: 20 pts</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card finish" id="finishCard">
+    <div class="big">🌿🏆🌿</div>
+    <h2>Missões concluídas!</h2>
+    <p id="finalText" style="font-size:20px;font-weight:900"></p>
+    <div class="stars" id="stars"></div>
+    <button class="primary" id="playAgainBtn" type="button">Jogar novamente</button>
+  </section>
+  <div class="footer">Professor <strong>António João Lopes</strong></div>
+</main>
+
+<script>
+(() => {
+  const c = {
+    trunk:'#8a6541', trunkDark:'#65462e', bark:'#b87f50',
+    green:'#5d9958', green2:'#82b86f', green3:'#3f7c49', green4:'#65783f',
+    green5:'#96c381', lightGreen:'#b7d69b',
+    red:'#d95f50', orange:'#d89a52', yellow:'#e6c76b',
+    cone:'#967049', brown:'#725037', berry:'#39445a',
+    pale:'#e2e8cf', vein:'#667f59',
+    cream:'#fffdf7', ground:'#d8dec3'
+  };
+
+  const TREES = [
+    { name:'PINHEIRO', type:'pinheiro' },
+    { name:'CARVALHO', type:'carvalho' },
+    { name:'SOBREIRO', type:'sobreiro' },
+    { name:'AZINHEIRA', type:'azinheira' },
+    { name:'MEDRONHEIRO', type:'medronheiro' },
+    { name:'LOUREIRO', type:'loureiro' },
+    { name:'FREIXO', type:'freixo' },
+    { name:'AMIEIRO', type:'amieiro' },
+    { name:'SALGUEIRO', type:'salgueiro' }
+  ];
+
+  function baseTreeStart(label){
+    return `<svg viewBox="0 0 260 260" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="blur"><feGaussianBlur stdDeviation="3"/></filter>
+        <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fffdf7"/>
+          <stop offset="100%" stop-color="#faf6ed"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="260" height="260" rx="18" fill="url(#paper)"/>
+      <g opacity=".28" filter="url(#blur)">
+        <circle cx="42" cy="48" r="16" fill="#dfe8c8"/>
+        <circle cx="214" cy="52" r="18" fill="#eadfc9"/>
+        <circle cx="224" cy="116" r="15" fill="#dfe9d6"/>
+      </g>
+      <ellipse cx="130" cy="225" rx="88" ry="11" fill="#000" opacity=".045"/>`;
+  }
+
+  function roots(x=130,y=213){
+    return `
+      <path d="M${x} ${y} Q${x-16} ${y+7} ${x-42} ${y+10}
+               M${x} ${y} Q${x+17} ${y+8} ${x+45} ${y+11}
+               M${x-3} ${y} Q${x-10} ${y+11} ${x-20} ${y+18}
+               M${x+4} ${y} Q${x+11} ${y+11} ${x+22} ${y+18}"
+            stroke="${c.trunkDark}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>`;
+  }
+
+  function trunkNatural(x=118,y=125,w=24,h=92){
+    return `
+      <path d="M${x} ${y+h}
+               Q${x+2} ${y+h-36} ${x+5} ${y+48}
+               Q${x+6} ${y+18} ${x+10} ${y}
+               L${x+w-8} ${y}
+               Q${x+w-3} ${y+22} ${x+w-2} ${y+50}
+               Q${x+w} ${y+h-38} ${x+w} ${y+h} Z"
+            fill="${c.trunk}"/>
+      <path d="M${x+8} ${y+10} Q${x+4} ${y+45} ${x+8} ${y+h-8}"
+            stroke="${c.trunkDark}" stroke-width="3" opacity=".3" fill="none" stroke-linecap="round"/>
+      <path d="M${x+w-8} ${y+18} Q${x+w-5} ${y+55} ${x+w-9} ${y+h-12}"
+            stroke="#c89565" stroke-width="2" opacity=".4" fill="none" stroke-linecap="round"/>
+      ${roots(x+w/2,y+h)}
+    `;
+  }
+
+  function leafBlob(cx,cy,rx,ry,color,rot=0){
+    return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${color}" transform="rotate(${rot} ${cx} ${cy})"/>`;
+  }
+
+  function fruitDot(cx,cy,r,color){
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}" stroke="#ffffff" stroke-width="1.2" opacity=".98"/>`;
+  }
+
+  function treeSVG(type){
+    if(type==='pinheiro') return baseTreeStart('Pinheiro') + `
+      ${trunkNatural(123,122,14,96)}
+      <g stroke="${c.trunk}" stroke-width="4.5" stroke-linecap="round" fill="none">
+        <path d="M130 34 L130 184"/>
+        <path d="M130 68 Q116 78 101 95"/>
+        <path d="M130 68 Q144 78 159 95"/>
+        <path d="M130 95 Q110 109 88 132"/>
+        <path d="M130 95 Q150 109 172 132"/>
+        <path d="M130 121 Q107 138 84 165"/>
+        <path d="M130 121 Q153 138 176 165"/>
+        <path d="M130 146 Q112 162 96 184"/>
+        <path d="M130 146 Q148 162 164 184"/>
+      </g>
+      <g stroke="${c.green3}" stroke-width="4.6" stroke-linecap="round" fill="none">
+        <path d="M130 43 Q113 58 92 82"/>
+        <path d="M130 43 Q147 58 168 82"/>
+        <path d="M124 58 Q104 78 80 108"/>
+        <path d="M136 58 Q156 78 180 108"/>
+        <path d="M120 79 Q96 101 70 135"/>
+        <path d="M140 79 Q164 101 190 135"/>
+        <path d="M116 102 Q92 126 66 159"/>
+        <path d="M144 102 Q168 126 194 159"/>
+        <path d="M114 126 Q95 149 77 177"/>
+        <path d="M146 126 Q165 149 183 177"/>
+      </g>
+      <g stroke="${c.green2}" stroke-width="2.1" stroke-linecap="round" opacity=".98">
+        <path d="M102 81 l-16 -8 M101 82 l-13 10 M112 69 l-15 -7 M110 72 l-12 10"/>
+        <path d="M158 81 l16 -8 M159 82 l13 10 M148 69 l15 -7 M150 72 l12 10"/>
+        <path d="M84 107 l-17 -8 M84 108 l-12 11 M98 91 l-16 -7 M96 94 l-12 11"/>
+        <path d="M176 107 l17 -8 M176 108 l12 11 M162 91 l16 -7 M164 94 l12 11"/>
+        <path d="M72 135 l-19 -7 M73 136 l-13 13 M89 119 l-18 -7 M87 122 l-13 12"/>
+        <path d="M188 135 l19 -7 M187 136 l13 13 M171 119 l18 -7 M173 122 l13 12"/>
+        <path d="M68 159 l-18 -6 M70 160 l-12 14 M84 145 l-17 -6 M82 147 l-12 13"/>
+        <path d="M192 159 l18 -6 M190 160 l12 14 M176 145 l17 -6 M178 147 l12 13"/>
+      </g>
+      <g stroke="${c.green5}" stroke-width="1.4" stroke-linecap="round" opacity=".75">
+        <path d="M93 91 l-10 -8 M169 91 l10 -8"/>
+        <path d="M78 120 l-10 -9 M184 120 l10 -9"/>
+        <path d="M67 149 l-10 -9 M195 149 l10 -9"/>
+      </g>
+      <ellipse cx="96" cy="160" rx="7.5" ry="12.5" fill="${c.cone}" transform="rotate(-18 96 160)"/>
+      <ellipse cx="166" cy="167" rx="7.5" ry="12.5" fill="${c.cone}" transform="rotate(16 166 167)"/>
+      <path d="M90 155 l11 9 M91 162 l11 8 M160 162 l11 9 M161 169 l11 7" stroke="${c.brown}" stroke-width="2"/>
+    </svg>`;
+
+    if(type==='carvalho') return baseTreeStart('Carvalho') + `
+      ${trunkNatural(111,126,38,92)}
+      <g stroke="${c.trunk}" stroke-width="10" fill="none" stroke-linecap="round">
+        <path d="M130 137 Q109 113 87 101"/>
+        <path d="M131 137 Q151 110 174 97"/>
+        <path d="M127 146 Q100 130 72 126"/>
+        <path d="M134 146 Q163 130 192 126"/>
+      </g>
+      ${leafBlob(81,94,36,29,c.green2,-12)}
+      ${leafBlob(122,77,41,32,c.green,6)}
+      ${leafBlob(166,88,39,31,c.green3,12)}
+      ${leafBlob(63,126,34,29,c.green,4)}
+      ${leafBlob(107,119,38,31,c.green2,-4)}
+      ${leafBlob(153,119,39,31,c.green,5)}
+      ${leafBlob(200,126,32,28,c.green3,-8)}
+      ${leafBlob(92,148,36,27,c.green2,6)}
+      ${leafBlob(171,149,37,28,c.green,0)}
+      <g fill="${c.lightGreen}" opacity=".65">
+        <ellipse cx="75" cy="88" rx="8" ry="4" transform="rotate(-25 75 88)"/>
+        <ellipse cx="110" cy="70" rx="9" ry="4" transform="rotate(15 110 70)"/>
+        <ellipse cx="180" cy="83" rx="8" ry="4" transform="rotate(30 180 83)"/>
+        <ellipse cx="196" cy="121" rx="8" ry="4" transform="rotate(-15 196 121)"/>
+      </g>
+      ${fruitDot(86,151,6,c.orange)} ${fruitDot(176,154,6,c.orange)}
+      <path d="M84 145 q2 -8 7 -12 M174 148 q2 -8 7 -12" stroke="${c.trunkDark}" stroke-width="2" fill="none"/>
+    </svg>`;
+
+    if(type==='sobreiro') return baseTreeStart('Sobreiro') + `
+      <path d="M109 217 Q111 176 113 141 Q114 116 118 105 L145 105 Q150 129 150 157 Q151 188 153 217 Z"
+            fill="#a96f45"/>
+      <g fill="#d39b67" stroke="#82532f" stroke-width="2">
+        <rect x="116" y="126" width="30" height="28" rx="5"/>
+        <rect x="114" y="159" width="34" height="31" rx="6"/>
+      </g>
+      <path d="M116 210 Q117 174 119 143 Q119 123 122 110" stroke="#6b4429" stroke-width="5" fill="none"/>
+      <path d="M129 211 Q130 178 131 145 Q132 125 133 109" stroke="#6b4429" stroke-width="4" fill="none"/>
+      <path d="M143 210 Q141 176 142 146 Q143 125 142 111" stroke="#6b4429" stroke-width="4" fill="none"/>
+      <g stroke="#6b4429" stroke-width="2.5" opacity=".82">
+        <path d="M113 136 l36 9"/><path d="M112 158 l39 8"/><path d="M111 181 l41 9"/>
+      </g>
+      <g stroke="#f0c79b" stroke-width="1.4" opacity=".75">
+        <path d="M120 131 l20 0"/><path d="M119 139 l22 0"/><path d="M120 147 l21 0"/>
+        <path d="M119 166 l24 0"/><path d="M118 176 l25 0"/><path d="M120 186 l23 0"/>
+      </g>
+      ${roots(131,216)}
+      <g stroke="#9b6c47" stroke-width="10" fill="none" stroke-linecap="round">
+        <path d="M130 124 Q104 103 83 96"/>
+        <path d="M132 125 Q157 101 181 95"/>
+        <path d="M127 133 Q96 124 68 129"/>
+        <path d="M136 134 Q166 121 198 128"/>
+      </g>
+      ${leafBlob(78,94,34,27,c.green3,-10)}
+      ${leafBlob(120,79,39,29,c.green,4)}
+      ${leafBlob(169,89,37,29,c.green2,10)}
+      ${leafBlob(62,128,32,26,c.green2,0)}
+      ${leafBlob(108,120,36,28,c.green3,-4)}
+      ${leafBlob(155,119,37,28,c.green,5)}
+      ${leafBlob(202,128,30,25,c.green3,-6)}
+      ${leafBlob(92,151,32,24,c.green2,4)}
+      ${leafBlob(171,150,34,25,c.green,0)}
+      ${fruitDot(91,149,5.5,c.orange)} ${fruitDot(180,149,5.5,c.orange)}
+    </svg>`;
+
+    if(type==='azinheira') return baseTreeStart('Azinheira') + `
+      ${trunkNatural(112,129,36,89)}
+      <g stroke="${c.trunk}" stroke-width="9" fill="none" stroke-linecap="round">
+        <path d="M130 140 Q106 116 83 109"/>
+        <path d="M132 140 Q156 114 181 108"/>
+      </g>
+      ${leafBlob(78,101,35,26,c.green4,-8)}
+      ${leafBlob(117,84,39,28,'#7e9349',3)}
+      ${leafBlob(164,95,37,27,c.green3,9)}
+      ${leafBlob(64,130,31,24,'#74863f',0)}
+      ${leafBlob(109,124,36,26,c.green4,-4)}
+      ${leafBlob(153,123,37,27,'#809449',4)}
+      ${leafBlob(198,131,31,24,c.green3,-5)}
+      ${leafBlob(92,153,33,24,'#83974d',6)}
+      ${leafBlob(172,153,34,24,c.green4,-2)}
+      <g fill="#a7b46b" opacity=".65">
+        <ellipse cx="87" cy="93" rx="7" ry="3.6" transform="rotate(-22 87 93)"/>
+        <ellipse cx="146" cy="90" rx="7" ry="3.6" transform="rotate(18 146 90)"/>
+        <ellipse cx="186" cy="126" rx="7" ry="3.6" transform="rotate(-12 186 126)"/>
+      </g>
+      ${fruitDot(100,158,5,c.orange)} ${fruitDot(161,156,5,c.orange)}
+    </svg>`;
+
+    if(type==='medronheiro') return baseTreeStart('Medronheiro') + `
+      <path d="M115 214 Q116 176 118 145 Q118 125 122 105" stroke="#a76947" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M137 214 Q136 174 135 145 Q135 124 132 105" stroke="#bf7b53" stroke-width="9" fill="none" stroke-linecap="round"/>
+      ${roots(126,214)}
+      <g stroke="#9d6848" stroke-width="7" fill="none" stroke-linecap="round">
+        <path d="M123 137 Q101 120 85 103"/>
+        <path d="M132 136 Q154 119 174 102"/>
+        <path d="M126 124 Q127 104 126 87"/>
+      </g>
+      ${leafBlob(84,102,29,23,c.green,-12)}
+      ${leafBlob(122,84,34,25,c.green2,3)}
+      ${leafBlob(166,102,30,23,c.green3,10)}
+      ${leafBlob(69,129,27,22,c.green2,-4)}
+      ${leafBlob(106,122,30,24,c.green,4)}
+      ${leafBlob(145,122,31,24,c.green2,-5)}
+      ${leafBlob(187,129,27,22,c.green3,6)}
+      ${leafBlob(93,150,29,22,c.green2,6)}
+      ${leafBlob(157,151,29,22,c.green,0)}
+      ${fruitDot(78,132,7,c.red)} ${fruitDot(104,96,7,c.red)} ${fruitDot(129,88,7,c.red)}
+      ${fruitDot(154,100,7,c.red)} ${fruitDot(177,126,7,c.red)} ${fruitDot(111,150,7,c.red)}
+      <g fill="#ff8a73">
+        <circle cx="76" cy="130" r="1.6"/><circle cx="81" cy="134" r="1.5"/>
+        <circle cx="127" cy="86" r="1.6"/><circle cx="132" cy="90" r="1.5"/>
+        <circle cx="109" cy="148" r="1.6"/><circle cx="114" cy="152" r="1.5"/>
+      </g>
+    </svg>`;
+
+    if(type==='loureiro') return baseTreeStart('Loureiro') + `
+      <path d="M118 215 Q118 178 120 146 Q121 123 125 104" stroke="${c.trunk}" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M137 215 Q136 176 134 145 Q133 123 130 103" stroke="${c.trunk}" stroke-width="8" fill="none" stroke-linecap="round"/>
+      ${roots(128,215)}
+      <g fill="${c.green3}">
+        <ellipse cx="83" cy="102" rx="12" ry="26" transform="rotate(-42 83 102)"/>
+        <ellipse cx="106" cy="83" rx="12" ry="27" transform="rotate(-20 106 83)"/>
+        <ellipse cx="132" cy="74" rx="12" ry="28"/>
+        <ellipse cx="158" cy="84" rx="12" ry="27" transform="rotate(22 158 84)"/>
+        <ellipse cx="181" cy="104" rx="12" ry="26" transform="rotate(42 181 104)"/>
+        <ellipse cx="76" cy="132" rx="12" ry="26" transform="rotate(-55 76 132)"/>
+        <ellipse cx="105" cy="119" rx="12" ry="26" transform="rotate(-24 105 119)"/>
+        <ellipse cx="135" cy="116" rx="12" ry="27" transform="rotate(10 135 116)"/>
+        <ellipse cx="166" cy="121" rx="12" ry="26" transform="rotate(30 166 121)"/>
+        <ellipse cx="190" cy="139" rx="12" ry="24" transform="rotate(58 190 139)"/>
+        <ellipse cx="101" cy="153" rx="12" ry="25" transform="rotate(-20 101 153)"/>
+        <ellipse cx="145" cy="151" rx="12" ry="25" transform="rotate(18 145 151)"/>
+      </g>
+      <g fill="${c.green2}" opacity=".65">
+        <ellipse cx="93" cy="92" rx="8" ry="20" transform="rotate(-38 93 92)"/>
+        <ellipse cx="153" cy="102" rx="8" ry="20" transform="rotate(20 153 102)"/>
+      </g>
+      ${fruitDot(99,158,5.5,c.berry)} ${fruitDot(132,164,5.5,c.berry)} ${fruitDot(160,155,5.5,c.berry)}
+    </svg>`;
+
+    if(type==='freixo') return baseTreeStart('Freixo') + `
+      ${trunkNatural(118,124,24,94)}
+      <g stroke="${c.trunk}" stroke-width="8" fill="none" stroke-linecap="round">
+        <path d="M130 139 Q106 110 89 94"/>
+        <path d="M132 137 Q155 108 174 93"/>
+        <path d="M127 145 Q103 136 78 132"/>
+        <path d="M135 145 Q161 134 187 130"/>
+      </g>
+      <g fill="${c.green2}">
+        <ellipse cx="84" cy="89" rx="9" ry="22" transform="rotate(-42 84 89)"/>
+        <ellipse cx="103" cy="75" rx="9" ry="22" transform="rotate(-22 103 75)"/>
+        <ellipse cx="125" cy="68" rx="9" ry="23"/>
+        <ellipse cx="149" cy="76" rx="9" ry="22" transform="rotate(22 149 76)"/>
+        <ellipse cx="172" cy="91" rx="9" ry="22" transform="rotate(42 172 91)"/>
+        <ellipse cx="71" cy="121" rx="9" ry="21" transform="rotate(-52 71 121)"/>
+        <ellipse cx="98" cy="112" rx="9" ry="22" transform="rotate(-26 98 112)"/>
+        <ellipse cx="159" cy="112" rx="9" ry="22" transform="rotate(28 159 112)"/>
+        <ellipse cx="190" cy="124" rx="9" ry="21" transform="rotate(52 190 124)"/>
+        <ellipse cx="92" cy="146" rx="9" ry="21" transform="rotate(-28 92 146)"/>
+        <ellipse cx="167" cy="145" rx="9" ry="21" transform="rotate(28 167 145)"/>
+      </g>
+      <g fill="${c.yellow}" stroke="#c9a84e" stroke-width="1">
+        <path d="M112 150 q18 3 23 16 q-14 -3 -23 -9 Z"/>
+        <path d="M142 157 q18 4 22 16 q-14 -3 -22 -9 Z"/>
+        <path d="M91 158 q17 2 21 14 q-13 -2 -21 -8 Z"/>
+      </g>
+    </svg>`;
+
+    if(type==='amieiro') return baseTreeStart('Amieiro') + `
+      ${trunkNatural(117,127,26,91)}
+      <g stroke="${c.trunk}" stroke-width="8" fill="none" stroke-linecap="round">
+        <path d="M130 141 Q106 116 84 105"/>
+        <path d="M132 141 Q157 114 179 104"/>
+      </g>
+      ${leafBlob(78,101,32,26,c.green2,-8)}
+      ${leafBlob(119,83,38,28,c.green,4)}
+      ${leafBlob(164,96,35,27,c.green3,8)}
+      ${leafBlob(65,131,29,24,c.green,0)}
+      ${leafBlob(108,121,33,26,c.green2,-4)}
+      ${leafBlob(151,121,34,26,c.green,4)}
+      ${leafBlob(196,132,28,23,c.green3,-6)}
+      ${leafBlob(91,151,31,23,c.green2,5)}
+      ${leafBlob(170,151,32,23,c.green,0)}
+      <g fill="${c.brown}">
+        <ellipse cx="91" cy="157" rx="6" ry="9"/>
+        <ellipse cx="128" cy="166" rx="6" ry="9"/>
+        <ellipse cx="168" cy="157" rx="6" ry="9"/>
+      </g>
+      <g stroke="#5c3b22" stroke-width="1.7">
+        <path d="M86 154 l10 5 M123 163 l10 5 M163 154 l10 5"/>
+      </g>
+    </svg>`;
+
+    return baseTreeStart('Salgueiro') + `
+      ${trunkNatural(121,119,18,99)}
+      <g stroke="${c.trunk}" stroke-width="6" fill="none" stroke-linecap="round">
+        <path d="M130 132 Q100 102 86 80"/>
+        <path d="M131 131 Q160 102 175 81"/>
+      </g>
+      <g stroke="${c.green3}" stroke-width="5" stroke-linecap="round" fill="none">
+        <path d="M86 72 Q73 120 80 188"/>
+        <path d="M102 62 Q90 118 96 199"/>
+        <path d="M118 57 Q108 116 114 203"/>
+        <path d="M143 57 Q153 116 146 204"/>
+        <path d="M160 63 Q172 119 164 198"/>
+        <path d="M176 74 Q190 125 181 188"/>
+      </g>
+      <g fill="${c.green2}">
+        <ellipse cx="78" cy="105" rx="5" ry="15" transform="rotate(-10 78 105)"/>
+        <ellipse cx="83" cy="137" rx="5" ry="15" transform="rotate(8 83 137)"/>
+        <ellipse cx="97" cy="96" rx="5" ry="15" transform="rotate(-8 97 96)"/>
+        <ellipse cx="99" cy="145" rx="5" ry="15" transform="rotate(8 99 145)"/>
+        <ellipse cx="115" cy="91" rx="5" ry="15" transform="rotate(-5 115 91)"/>
+        <ellipse cx="116" cy="151" rx="5" ry="15" transform="rotate(7 116 151)"/>
+        <ellipse cx="145" cy="94" rx="5" ry="15" transform="rotate(5 145 94)"/>
+        <ellipse cx="146" cy="150" rx="5" ry="15" transform="rotate(-6 146 150)"/>
+        <ellipse cx="165" cy="99" rx="5" ry="15" transform="rotate(8 165 99)"/>
+        <ellipse cx="164" cy="145" rx="5" ry="15" transform="rotate(-8 164 145)"/>
+        <ellipse cx="181" cy="111" rx="5" ry="15" transform="rotate(12 181 111)"/>
+      </g>
+    </svg>`;
+  }
+
+  function leafVeins(wide=false){
+    return `
+      <path d="M90 180 L90 50" stroke="${c.vein}" stroke-width="4"/>
+      <path d="M90 92 L63 74 M90 110 L60 104 M90 129 L66 141" stroke="${c.vein}" stroke-width="2" fill="none"/>
+      <path d="M90 92 L117 74 M90 110 L120 104 M90 129 L114 141" stroke="${c.vein}" stroke-width="2" fill="none"/>
+    `;
+  }
+
+  function leafSVG(type){
+    if(type==='pinheiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folhas do pinheiro">
+        <g stroke="${c.green3}" stroke-width="6" stroke-linecap="round">
+          <path d="M42 178 Q84 116 92 44"/>
+          <path d="M64 184 Q100 124 112 58"/>
+          <path d="M86 186 Q118 130 132 72"/>
+          <path d="M108 180 Q136 132 148 88"/>
+        </g>
+      </svg>`;
+    if(type==='carvalho') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha de carvalho">
+        <path d="M88 194
+          Q72 174 77 156 Q52 151 57 132 Q36 119 54 98
+          Q43 74 66 76 Q74 47 92 57 Q108 37 122 58
+          Q147 53 140 81 Q161 91 144 113 Q151 135 127 145
+          Q125 169 108 184 Q97 192 88 194Z"
+          fill="${c.green2}" stroke="${c.vein}" stroke-width="2"/>
+        <path d="M92 191 L96 58" stroke="${c.vein}" stroke-width="4"/>
+        <path d="M96 96 L68 82 M96 114 L63 109 M96 132 L71 140 M96 90 L124 76 M96 110 L130 106 M96 132 L122 144"
+              stroke="${c.vein}" stroke-width="2" fill="none"/>
+      </svg>`;
+    if(type==='sobreiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha de sobreiro">
+        <ellipse cx="90" cy="104" rx="42" ry="68" fill="${c.green2}" stroke="${c.vein}" stroke-width="2"/>
+        ${leafVeins()}
+      </svg>`;
+    if(type==='azinheira') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha de azinheira">
+        <path d="M90 182 C49 160 46 79 90 42 C134 79 131 160 90 182Z" fill="${c.green4}" stroke="${c.vein}" stroke-width="2"/>
+        ${leafVeins()}
+      </svg>`;
+    if(type==='medronheiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha de medronheiro">
+        <path d="M90 184 C50 148 51 78 90 42 C129 78 130 148 90 184Z" fill="${c.green}" stroke="${c.vein}" stroke-width="2"/>
+        ${leafVeins()}
+      </svg>`;
+    if(type==='loureiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha de loureiro">
+        <path d="M90 188 C43 148 43 78 90 32 C137 78 137 148 90 188Z" fill="${c.green3}" stroke="${c.vein}" stroke-width="2"/>
+        ${leafVeins()}
+      </svg>`;
+    if(type==='freixo') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha composta de freixo">
+        <path d="M90 194 L90 30" stroke="${c.vein}" stroke-width="5"/>
+        <g fill="${c.green2}" stroke="${c.vein}" stroke-width="2">
+          <ellipse cx="63" cy="60" rx="16" ry="30" transform="rotate(-35 63 60)"/>
+          <ellipse cx="117" cy="62" rx="16" ry="30" transform="rotate(35 117 62)"/>
+          <ellipse cx="56" cy="108" rx="16" ry="30" transform="rotate(-35 56 108)"/>
+          <ellipse cx="124" cy="110" rx="16" ry="30" transform="rotate(35 124 110)"/>
+          <ellipse cx="90" cy="42" rx="16" ry="30"/>
+        </g>
+      </svg>`;
+    if(type==='amieiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha de amieiro">
+        <path d="M90 184 C42 152 49 72 90 48 C131 72 138 152 90 184Z" fill="${c.green2}" stroke="${c.vein}" stroke-width="2"/>
+        ${leafVeins()}
+      </svg>`;
+    return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Folha de salgueiro">
+        <path d="M90 186 C55 146 59 78 90 34 C121 78 125 146 90 186Z" fill="${c.green2}" stroke="${c.vein}" stroke-width="2"/>
+        ${leafVeins()}
+      </svg>`;
+  }
+
+  function fruitSVG(type){
+    if(type==='pinheiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Pinha">
+        <ellipse cx="90" cy="118" rx="38" ry="56" fill="${c.cone}"/>
+        <g stroke="${c.brown}" stroke-width="5" stroke-linecap="round">
+          <path d="M62 82 L118 102"/>
+          <path d="M56 106 L124 126"/>
+          <path d="M62 130 L118 150"/>
+          <path d="M90 62 L90 170"/>
+        </g>
+      </svg>`;
+    if(type==='carvalho' || type==='sobreiro' || type==='azinheira') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Bolota">
+        <path d="M90 42 Q92 65 90 84" stroke="${c.vein}" stroke-width="5"/>
+        <ellipse cx="90" cy="122" rx="28" ry="42" fill="${c.orange}" stroke="#c48339" stroke-width="2"/>
+        <path d="M62 82 Q90 70 118 82 L118 96 Q90 88 62 96 Z" fill="${c.yellow}" stroke="#d8b33a" stroke-width="2"/>
+      </svg>`;
+    if(type==='medronheiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Medronho">
+        <path d="M90 44 Q92 66 90 82" stroke="${c.vein}" stroke-width="5"/>
+        <circle cx="90" cy="122" r="38" fill="${c.red}" stroke="#cf4334" stroke-width="2"/>
+        <g fill="#ff8a73">
+          <circle cx="74" cy="107" r="4"/>
+          <circle cx="96" cy="102" r="4"/>
+          <circle cx="113" cy="120" r="4"/>
+          <circle cx="84" cy="130" r="4"/>
+          <circle cx="101" cy="139" r="4"/>
+          <circle cx="68" cy="123" r="4"/>
+        </g>
+      </svg>`;
+    if(type==='loureiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Fruto do loureiro">
+        <path d="M90 44 Q90 65 84 84 M90 61 Q108 74 111 94" stroke="${c.vein}" stroke-width="5" fill="none"/>
+        <circle cx="79" cy="120" r="20" fill="${c.berry}"/>
+        <circle cx="112" cy="129" r="20" fill="${c.berry}"/>
+      </svg>`;
+    if(type==='freixo') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Fruto do freixo">
+        <path d="M90 38 L90 176" stroke="${c.vein}" stroke-width="5"/>
+        <g fill="${c.yellow}" stroke="#d8b33a" stroke-width="1">
+          <path d="M90 68 Q53 72 53 100 Q76 94 90 79 Z"/>
+          <path d="M90 99 Q127 104 127 132 Q104 125 90 110 Z"/>
+          <path d="M90 127 Q58 136 60 160 Q79 154 90 140 Z"/>
+        </g>
+      </svg>`;
+    if(type==='amieiro') return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Fruto do amieiro">
+        <path d="M90 42 L90 78" stroke="${c.vein}" stroke-width="5"/>
+        <ellipse cx="90" cy="122" rx="30" ry="40" fill="${c.brown}" stroke="#634024" stroke-width="2"/>
+        <g stroke="#5c3b22" stroke-width="4">
+          <path d="M65 100 L113 112"/>
+          <path d="M62 120 L118 132"/>
+          <path d="M70 142 L110 153"/>
+        </g>
+      </svg>`;
+    return `
+      <svg viewBox="0 0 180 220" role="img" aria-label="Fruto do salgueiro">
+        <path d="M90 40 Q78 72 78 118" stroke="${c.vein}" stroke-width="5" fill="none"/>
+        <ellipse cx="78" cy="118" rx="18" ry="42" fill="${c.pale}" stroke="#bfd9b3" stroke-width="2"/>
+        <g fill="#ffffff">
+          <circle cx="78" cy="92" r="6"/><circle cx="72" cy="111" r="6"/><circle cx="84" cy="126" r="6"/><circle cx="75" cy="141" r="6"/>
+        </g>
+      </svg>`;
+  }
+
+  const $ = s => document.querySelector(s);
+  const missionCount = $('#missionCount');
+  const scoreEl = $('#score');
+  const progressBar = $('#progressBar');
+  const treeBox = $('#treeBox');
+  const leafBox = $('#leafBox');
+  const fruitBox = $('#fruitBox');
+  const modeBadge = $('#modeBadge');
+  const title = $('#title');
+  const instruction = $('#instruction');
+  const challenge = $('#challenge');
+  const answerForm = $('#answerForm');
+  const answer = $('#answer');
+  const feedback = $('#feedback');
+  const missionCard = $('#missionCard');
+  const finishCard = $('#finishCard');
+  const finalText = $('#finalText');
+  const stars = $('#stars');
+
+  let missions = [];
+  let index = 0;
+  let score = 0;
+  let attempts = 0;
+  let locked = false;
+
+  function rot13(text){
+    return text.replace(/[A-Z]/g, c => String.fromCharCode(((c.charCodeAt(0)-65+13)%26)+65));
+  }
+  function normalize(text){
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z]/g,'');
+  }
+  function pickFive(){
+    const arr = [...TREES];
+    for(let i=arr.length-1; i>0; i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0,5);
+  }
+  function pointsForAttempt(n){
+    if(n===1) return 100;
+    if(n===2) return 70;
+    if(n===3) return 40;
+    return 20;
+  }
+  function newGame(){
+    missions = [
+      ...pickFive().map(t => ({...t, mode:'encode'})),
+      ...pickFive().map(t => ({...t, mode:'decode'}))
+    ];
+    index = 0; score = 0; attempts = 0; locked = false;
+    scoreEl.textContent = '0';
+    missionCard.style.display = 'block';
+    finishCard.style.display = 'none';
+    renderMission();
+  }
+  function renderMission(){
+    const m = missions[index];
+    attempts = 0; locked = false;
+    answer.value = '';
+    feedback.textContent = '';
+    feedback.className = 'feedback';
+    missionCount.textContent = `${index+1}/10`;
+    progressBar.style.width = `${(index+1)*10}%`;
+    treeBox.innerHTML = treeSVG(m.type);
+    leafBox.innerHTML = leafSVG(m.type);
+    fruitBox.innerHTML = fruitSVG(m.type);
+
+    if(m.mode === 'encode'){
+      modeBadge.textContent = 'CODIFICAR';
+      title.textContent = 'Codifica o nome da árvore';
+      instruction.textContent = 'Observa a árvore, a folha e o fruto. Depois usa o código para codificar o nome.';
+      challenge.textContent = m.name;
+      answer.placeholder = 'Escreve o código';
+    } else {
+      modeBadge.textContent = 'DESCODIFICAR';
+      title.textContent = 'Descodifica o nome da árvore';
+      instruction.textContent = 'Observa as imagens e usa o código para descobrir o nome da árvore.';
+      challenge.textContent = rot13(m.name);
+      answer.placeholder = 'Escreve o nome';
+    }
+    answer.focus();
+  }
+  answerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if(locked) return;
+    const user = normalize(answer.value);
+    if(!user){
+      feedback.textContent = 'Escreve uma resposta antes de verificar.';
+      feedback.className = 'feedback bad';
+      answer.focus();
+      return;
+    }
+    attempts++;
+    const current = missions[index];
+    const correct = current.mode === 'encode' ? rot13(current.name) : current.name;
+    if(user === correct){
+      locked = true;
+      const pts = pointsForAttempt(attempts);
+      score += pts;
+      scoreEl.textContent = String(score);
+      feedback.textContent = `Muito bem! +${pts} pontos`;
+      feedback.className = 'feedback good';
+      setTimeout(() => {
+        index++;
+        if(index >= 10) finishGame();
+        else renderMission();
+      }, 900);
+    } else {
+      feedback.className = 'feedback bad';
+      feedback.textContent = attempts === 1
+        ? 'Ainda não está certo. Consulta o código e tenta novamente.'
+        : attempts === 2
+        ? 'Quase! Verifica letra a letra.'
+        : 'Tenta outra vez com calma.';
+      answer.select();
+    }
+  });
+  function finishGame(){
+    missionCard.style.display = 'none';
+    finishCard.style.display = 'block';
+    finalText.textContent = `Conseguiste ${score} pontos em 1000.`;
+    const n = score >= 850 ? 3 : score >= 650 ? 2 : 1;
+    stars.textContent = '⭐'.repeat(n) + '☆'.repeat(3-n);
+  }
+  $('#newGameBtn').addEventListener('click', newGame);
+  $('#playAgainBtn').addEventListener('click', newGame);
+  newGame();
+})();
+</script>
+</body>
+</html>
